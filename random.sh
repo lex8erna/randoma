@@ -90,12 +90,12 @@ done
 # Repetition mode
 if [[ $repeat && !($silent)]]; then
   echo "Repeating $repeat times"
-  iterations=$repeat;
+  repetitions=$repeat;
 else
-  iterations=1;
+  repetitions=1;
 fi
 
-for ((j=0; j<iterations; j++))
+for ((j=0; j<repetitions; j++))
 do
   # Check for no args
   if [[ $# -eq 0 ]]; then
@@ -152,7 +152,7 @@ do
      
   avg=0.0
   sum=0
-  
+  sumsqr=0
   for (( i=1; i<=iterations; i++)); do
     if [[ $interactive ]]; then
       read
@@ -170,12 +170,15 @@ do
           2) echo "Tails!";;
         esac
       else
-        echo "Rolled a $curr! (Total=${results[$curr]})"
+        echo "Rolled a $curr! (Total Hits=${results[$curr]})"
       fi
       
       if [[ $analytic ]]; then
-        avg=$(echo "scale=2;($avg*($i-1)+$curr)/$i" | bc -l)
-        echo "Average: $avg"
+        avg=$(echo "($avg*($i-1)+$curr)/$i" | bc -l)
+        ((sumsqr+= $curr * $curr ))
+        echo Average: `echo "scale=2; $avg/1" | bc -l`
+        stdv=$(echo "sqrt($i*$sumsqr -($sum*$sum))/$i" | bc -l)
+        echo Standard Deviation: `echo "scale=2; $stdv/1" | bc -l`
       fi
     fi
   done
@@ -194,6 +197,10 @@ do
         echo "$i : ${results[$i]}";
       done
       echo Total: $sum
+        if [[ $analytic ]]; then
+          echo Average: `echo "scale=2; $avg/1" | bc -l`
+          echo Standard Deviation: `echo "scale=2; $stdv/1" | bc -l`
+        fi
     fi
   fi
   
