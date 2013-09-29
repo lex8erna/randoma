@@ -90,9 +90,12 @@ done
 # Repetition mode
 if [[ $repeat && !($silent)]]; then
   echo "Repeating $repeat times"
+  iterations=$repeat;
+else
+  iterations=1;
 fi
 
-for ((j=0; j<$repeat; j++))
+for ((j=0; j<iterations; j++))
 do
   # Check for no args
   if [[ $# -eq 0 ]]; then
@@ -121,6 +124,11 @@ do
     range=$2
   fi
   
+ # Start of random number generation
+  if ! [[ $silent ]]; then
+    echo "==Start=="
+  fi
+
   # Setting up upper and lower bounds
   if [[ $minimum ]]; then
     if [[ $minimum -gt $range ]]; then
@@ -130,7 +138,7 @@ do
       echo "Invalid range: Lower bound $minumum = Upper bound $range."
       exit 1
     fi
-    ((diff=$range-$minimum))
+    ((diff=range-minimum))
     
     if ! [[ $silent ]]; then
       echo "Rolling $iterations""d$diff+$minimum"
@@ -141,17 +149,11 @@ do
       echo "Rolling $iterations""d$range"
     fi
   fi
-  
-  # Start of random number generation
-  if ! [[ $silent ]]; then
-    echo "Start:"
-  fi
-  
+     
   avg=0.0
   sum=0
   
-  for (( i=1; i<=iterations; i++))
-  do
+  for (( i=1; i<=iterations; i++)); do
     if [[ $interactive ]]; then
       read
     fi
@@ -182,13 +184,12 @@ do
   if [[ $silent ]]; then
     echo $sum
   else
-    echo
     echo "Results:"
     if [[ $coin ]]; then
       echo "Heads: ${results[1]}"
       echo "Tails: ${results[2]}"
     else
-      for (( i=minimum; i<=range; i++))
+      for (( i=$minimum; i<=$range; i++))
       do
         echo "$i : ${results[$i]}";
       done
